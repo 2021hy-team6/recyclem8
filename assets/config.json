@@ -1,0 +1,9 @@
+{
+    "source_type": 1,
+    "source_index": 0,
+    "source_str": "http://192.168.50.15:8080/video",
+    "skip_start": true,
+    "dashboard_link": "",
+    "db_enabled": false,
+    "db_conn_str": "host=172.28.0.62 user=usr_recm8 password=mysecretpassword dbname=db_recm8"
+}

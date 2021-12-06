@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsMenu</class>
+ <widget class="QDialog" name="SettingsMenu">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>483</width>
+    <height>296</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Settings Menu</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="opencv_settings_tab">
+      <attribute name="title">
+       <string>OpenCV Settings</string>
+      </attribute>
+      <widget class="QGroupBox" name="source_type_box">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>10</y>
+         <width>421</width>
+         <height>75</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Type</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QRadioButton" name="index_radio">
+          <property name="text">
+           <string>Index (Physical)</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="webcam_radio">
+          <property name="text">
+           <string>Webcam (IP)</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="source_box">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>110</y>
+         <width>421</width>
+         <height>113</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Video Source</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="0">
+         <widget class="QLabel" name="ip_label">
+          <property name="text">
+           <string>Address</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QSpinBox" name="index_spinbox"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="index_label">
+          <property name="text">
+           <string>Index</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1" colspan="2">
+         <widget class="QLineEdit" name="ip_lineedit">
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="placeholderText">
+           <string>http://127.0.0.1:8080</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="app_settings_tab">
+      <attribute name="title">
+       <string>Application Settings</string>
+      </attribute>
+      <widget class="QGroupBox" name="start_box">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>10</y>
+         <width>421</width>
+         <height>75</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Start</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="skip_start_chkbox">
+          <property name="text">
+           <string>Skip Start Sequence (Skips to Scanner on App Start)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="db_settings_tab">
+      <attribute name="title">
+       <string>Database Settings</string>
+      </attribute>
+      <widget class="QGroupBox" name="db_usage_box">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>10</y>
+         <width>421</width>
+         <height>75</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Database Usage</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QCheckBox" name="db_chkbox">
+          <property name="text">
+           <string>Enable use of Database (Requires App Restart)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
