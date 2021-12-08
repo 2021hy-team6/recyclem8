@@ -57,7 +57,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="start_page">
        <layout class="QGridLayout" name="layout_start">
@@ -369,10 +369,10 @@
        <widget class="QLabel" name="result_label">
         <property name="geometry">
          <rect>
-          <x>200</x>
-          <y>350</y>
-          <width>481</width>
-          <height>61</height>
+          <x>110</x>
+          <y>360</y>
+          <width>631</width>
+          <height>71</height>
          </rect>
         </property>
         <property name="autoFillBackground">

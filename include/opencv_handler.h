@@ -20,14 +20,26 @@ public:
     void start(QLabel& frame_label, QLabel& text_label);
 
 private:
+    struct Detection {
+        Classifier::RecycleInfo info;
+        int obj_index;
+        int x1;
+        int y1;
+        int x2;
+        int y2;
+        float real_confidence;
+        float degrading_confidence;
+        long inference_time;
+        cv::Mat frame;
+        bool stats_written;
+    };
+
     int _width;
     int _height;
     std::weak_ptr<StatisticsMenu> _stats_menu;
 
     cv::VideoCapture _camera;
     Classifier _classifier;
-
-    bool _allow_new_detection_log;
     std::string _source_str;
 
     bool _db_enabled;

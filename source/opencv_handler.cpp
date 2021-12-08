@@ -69,16 +69,18 @@ void OpenCVHandler::do_stats(int index) {
 void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
     cv::dnn::Net net = cv::dnn::readNetFromTensorflow("frozen_taco.pb", "frozen_taco.pbtxt");
 
-    const int detection_frame_timeout_value = 20;
+    const int detection_frame_timeout_value = 35;
     int detection_frame_timeout_counter = detection_frame_timeout_value;
 
+    Detection top_detection;
+
     cv::Mat frame;
+
     while (true) {
         _camera >> frame;
         cv::resize(frame, frame, cv::Size(_width, _height));
 
         bool detected = false;
-        text_label.hide();
 
         std::chrono::time_point pre_time = std::chrono::high_resolution_clock::now();
 
@@ -94,44 +96,69 @@ void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
         for(int i = 0; i < detection_res.rows; i++) {
             float confidence = detection_res.at<float>(i, 2);
 
-            if(confidence > 0.5) {
+            if(confidence > 0.7) {
                 int x1 = static_cast<int>(detection_res.at<float>(i, 3) * _width);
                 int y1 = static_cast<int>(detection_res.at<float>(i, 4) * _height);
                 int x2 = static_cast<int>(detection_res.at<float>(i, 5) * _width);
                 int y2 = static_cast<int>(detection_res.at<float>(i, 6) * _height);
-                cv::rectangle(frame, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 0, 255),2, 4);
+                cv::rectangle(frame, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 0, 255), 2, 4);
 
                 const int index = static_cast<int>(detection_res.at<float>(i, 1)) - 1;
                 Classifier::RecycleInfo info = _classifier.classify(index);
-                const std::string recyclable_status = info.recycle_class.recyclable ? "Recyclable" : "Not Recyclable";
-                const std::string display_text = fmt::format("{} - {} {}\n{} - {}",
-                                                              info.item, info.recycle_class.name, confidence,                                                             recyclable_status, info.special_instructions);
+
+                cv::Size text_size = cv::getTextSize(info.item, cv::FONT_HERSHEY_DUPLEX, 0.5, 1, 0);
+                cv::rectangle(frame, cv::Point(x1, y1 - 15), cv::Point(x1 + text_size.width, y1), cv::Scalar(0, 0, 255), -1);
+                cv::putText(frame, info.item, cv::Point(x1, y1), cv::FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(0, 0, 0), 1);
+
+                if(confidence >= top_detection.degrading_confidence) {
+                    top_detection.info = info;
+                    top_detection.obj_index = index;
+                    top_detection.x1 = x1;
+                    top_detection.y1 = y1;
+                    top_detection.x2 = x2;
+                    top_detection.y2 = y2;
+                    top_detection.real_confidence = std::max(confidence, top_detection.real_confidence);
+                    top_detection.degrading_confidence = top_detection.real_confidence;
+                    top_detection.inference_time = inference_time;
+                    top_detection.frame = frame;
+                    top_detection.stats_written = false;
+                    detection_frame_timeout_counter = detection_frame_timeout_value;
+                }
+
+                const std::string recyclable_status = top_detection.info.recycle_class.recyclable ? "Recyclable" : "Not Recyclable";
+                const std::string display_text = fmt::format("{} - {} <{}>\n{}\nConfidence: {}",
+                                                              top_detection.info.item, top_detection.info.recycle_class.name,
+                                                              recyclable_status, top_detection.info.special_instructions,
+                                                              top_detection.real_confidence);
+
                 detected = true;
                 text_label.show();
-
-                if(!_allow_new_detection_log) {
-                    continue;
-                }
                 text_label.setText(display_text.c_str());
                 text_label.setAlignment(Qt::AlignCenter);
-
-                do_stats(info.superclass_id);
-                _allow_new_detection_log = false;
-                detection_frame_timeout_counter = detection_frame_timeout_value;
-
-                if(!_db_enabled) {
-                    continue;
-                }
-                uint img_id = _db_handler.lock()->insert_image(frame.data, inference_time);
-                _db_handler.lock()->insert_detection(img_id, index, x1, y1, x2, y2);
             }
         }
         if(!detected) {
-            if(!detection_frame_timeout_counter) {
-                _allow_new_detection_log = true;
+            if(detection_frame_timeout_counter == 0) {
+                text_label.hide();
+                top_detection.real_confidence = 0;
+                top_detection.degrading_confidence = 0;
+
+                if(!top_detection.stats_written) {
+                    do_stats(top_detection.info.superclass_id);
+                    top_detection.stats_written = true;
+                }
+                if(_db_enabled) {
+                    uint img_id = _db_handler.lock()->insert_image(top_detection.frame.data, top_detection.inference_time);
+                    _db_handler.lock()->insert_detection(img_id, top_detection.obj_index,
+                                                         top_detection.x1, top_detection.y1,
+                                                         top_detection.x2, top_detection.y2);
+                }
             }
-            --detection_frame_timeout_counter;
+            else {
+                --detection_frame_timeout_counter;
+            }
         }
+        top_detection.degrading_confidence -= 0.02;
 
         cv::cvtColor(frame, frame, cv::COLOR_BGRA2RGBA);
         QImage q_img((uchar*)frame.data, frame.cols, frame.rows,
