@@ -15,7 +15,7 @@ public:
 
     void delete_category_table_data();
     uint insert_image(unsigned char* image, double elapsed_sec);
-    void insert_detection(int img_id, int obj_id, double x1, double y1, double x2, double y2);
+    void insert_detection(int img_id, const std::string& name, float score, double x1, double y1, double x2, double y2);
     void insert_category(int sup_id, const std::string& name, const std::string& special_instruct);
     void insert_super_category(const std::string& name, bool is_recyclable);
 
