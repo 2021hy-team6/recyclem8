@@ -149,7 +149,7 @@ void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
                 }
                 if(_db_enabled) {
                     uint img_id = _db_handler.lock()->insert_image(top_detection.frame.data, top_detection.inference_time);
-                    _db_handler.lock()->insert_detection(img_id, top_detection.obj_index,
+                    _db_handler.lock()->insert_detection(img_id, top_detection.info.recycle_class.name, top_detection.real_confidence,
                                                          top_detection.x1, top_detection.y1,
                                                          top_detection.x2, top_detection.y2);
                 }
