@@ -19,6 +19,9 @@ C++ Application for the Recycling Assistant Project
 Despite the following being provided as a submodule, you may also need the following:
 - rapidjson: https://github.com/Tencent/rapidjson
 
+Note: If OpenCV4 is not building with FFMpeg, you may require the following:
+`sudo apt install libavcodec-dev libavformat-dev libavutil-dev libswscale-dev`
+
 #### Compiling/Installing
 ```
 git clone https://github.com/2021hy-team6/recyclem8.git --recursive
