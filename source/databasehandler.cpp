@@ -14,7 +14,7 @@ DatabaseHandler::DatabaseHandler(const std::string& conn_string) {
         { Prepareds::INSERT_IMAGE,          { "Insert_Image",
                                               "INSERT INTO image(image, msec) VALUES($1, $2) RETURNING img_id;" } },
         { Prepareds::INSERT_DETECTION,      { "Insert_Detection",
-                                              "INSERT INTO detection(img_id, obj_id, score, x1, y1, x2, y2) VALUES ($1, $2, $3, $4, $5, $6, $7);" } },
+                                              "INSERT INTO detection(img_id, obj_name, score, x1, y1, x2, y2) VALUES ($1, $2, $3, $4, $5, $6, $7);" } },
         { Prepareds::INSERT_CATEGORY,       { "Insert_Category",
                                               "INSERT INTO category(sup_id, obj_name, special_instruct) VALUES ($1, $2, $3);" } },
         { Prepareds::INSERT_SUPER_CATEGORY, { "Insert_Super_Category",
@@ -52,12 +52,12 @@ uint DatabaseHandler::insert_image(unsigned char* image, double elapsed_sec) {
     return results[0][0].as<uint>();
 }
 
-void DatabaseHandler::insert_detection(int img_id, int obj_id, double x1, double y1, double x2, double y2) {
+void DatabaseHandler::insert_detection(int img_id, const std::string& name, float score, double x1, double y1, double x2, double y2) {
     const std::string& stm = _prepared_statements[Prepareds::INSERT_DETECTION].name;
 
     _conn_mtx.lock();
     pqxx::work txn{*_conn};
-    txn.exec_prepared(stm, img_id, obj_id, x1, y1, x2, y2);
+    txn.exec_prepared(stm, img_id, name, score, x1, y1, x2, y2);
     txn.commit();
     _conn_mtx.unlock();
 }
