@@ -12,13 +12,13 @@ DatabaseHandler::DatabaseHandler(const std::string& conn_string) {
 
     _prepared_statements = {
         { Prepareds::INSERT_IMAGE,          { "Insert_Image",
-                                              "INSERT INTO image(image, elapsed_sec) VALUES($1, $2) RETURNING img_id;" } },
+                                              "INSERT INTO image(image, msec) VALUES($1, $2) RETURNING img_id;" } },
         { Prepareds::INSERT_DETECTION,      { "Insert_Detection",
                                               "INSERT INTO detection(img_id, obj_id, score, x1, y1, x2, y2) VALUES ($1, $2, $3, $4, $5, $6, $7);" } },
         { Prepareds::INSERT_CATEGORY,       { "Insert_Category",
-                                              "INSERT INTO category(sup_id, name, special_instruct) VALUES ($1, $2, $3);" } },
+                                              "INSERT INTO category(sup_id, obj_name, special_instruct) VALUES ($1, $2, $3);" } },
         { Prepareds::INSERT_SUPER_CATEGORY, { "Insert_Super_Category",
-                                              "INSERT INTO super_category(name, is_recyclable) VALUES ($1, $2);" } },
+                                              "INSERT INTO super_category(sup_name, is_recyclable) VALUES ($1, $2);" } },
     };
 
     _conn_mtx.lock();
