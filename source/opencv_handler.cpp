@@ -69,7 +69,7 @@ void OpenCVHandler::do_stats(int index) {
 void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
     cv::dnn::Net net = cv::dnn::readNetFromTensorflow("frozen_taco.pb", "frozen_taco.pbtxt");
 
-    const int detection_frame_timeout_value = 35;
+    const int detection_frame_timeout_value = 60;
     int detection_frame_timeout_counter = detection_frame_timeout_value;
 
     Detection top_detection;
