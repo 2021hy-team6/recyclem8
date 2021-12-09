@@ -8,7 +8,7 @@ C++ Application for the Recycling Assistant Project
   - Tested on a R7 5800x Quad Core VM, and a Dual Core Laptop
 
 #### Requirements
-##### In order to adhere to library licenses, this project will not provide a pre-compiled statically linked binary.
+> ##### In order to adhere to library licenses, this project will not provide a pre-compiled statically linked binary.
 - Qt: `sudo apt install qtbase5-dev`
 - fmt: https://github.com/fmtlib/fmt
 - OpenCV 4 Core: https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html
