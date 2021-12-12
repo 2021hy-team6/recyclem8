@@ -1,5 +1,6 @@
-# recyclem8
-C++ Application for the Recycling Assistant Project
+# Recycling Assistant Main Application
+##### https://2021hyt6-techblog.github.io/projects-blog/se/
+The Main C++ Application for the Recycling Assistant Project
 
 #### Tested Environments
 - Ubuntu 20.04 LTS
