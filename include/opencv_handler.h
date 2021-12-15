@@ -29,8 +29,8 @@ private:
         int y2;
         float real_confidence;
         float degrading_confidence;
-        long inference_time;
-        cv::Mat frame;
+        int inference_time;
+        std::vector<uchar> frame_data;
         bool stats_written;
     };
 

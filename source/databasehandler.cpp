@@ -16,9 +16,9 @@ DatabaseHandler::DatabaseHandler(const std::string& conn_string) {
         { Prepareds::INSERT_DETECTION,      { "Insert_Detection",
                                               "INSERT INTO detection(img_id, obj_name, score, x1, y1, x2, y2) VALUES ($1, $2, $3, $4, $5, $6, $7);" } },
         { Prepareds::INSERT_CATEGORY,       { "Insert_Category",
-                                              "INSERT INTO category(sup_id, obj_name, special_instruct) VALUES ($1, $2, $3);" } },
+                                              "INSERT INTO category(sup_id, obj_name, special_instruct) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;" } },
         { Prepareds::INSERT_SUPER_CATEGORY, { "Insert_Super_Category",
-                                              "INSERT INTO super_category(sup_name, is_recyclable) VALUES ($1, $2);" } },
+                                              "INSERT INTO super_category(sup_name, is_recyclable) VALUES ($1, $2) ON CONFLICT DO NOTHING;" } },
     };
 
     _conn_mtx.lock();
@@ -29,19 +29,10 @@ DatabaseHandler::DatabaseHandler(const std::string& conn_string) {
     _conn_mtx.unlock();
 }
 
-void DatabaseHandler::delete_category_table_data()  {
-    _conn_mtx.lock();
-    pqxx::work txn{*_conn};
-    txn.exec0("DELETE FROM category;");
-    txn.exec0("DELETE FROM super_category;");
-    txn.commit();
-    _conn_mtx.unlock();
-}
-
-uint DatabaseHandler::insert_image(unsigned char* image, double elapsed_sec) {
+uint DatabaseHandler::insert_image(const std::vector<unsigned char>& image, int elapsed_sec) {
     const std::string& stm = _prepared_statements[Prepareds::INSERT_IMAGE].name;
 
-    pqxx::binarystring bytea_image(image, sizeof(image));
+    pqxx::binarystring bytea_image(&image[0], image.size());
 
     _conn_mtx.lock();
     pqxx::work txn{*_conn};

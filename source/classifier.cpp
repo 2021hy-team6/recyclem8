@@ -67,3 +67,7 @@ Classifier::RecycleInfo Classifier::classify(int index) const {
 std::unordered_map<int, Classifier::SuperCategory> Classifier::get_supercategorymap() const {
     return _super_categorymap;
 }
+
+std::vector<Classifier::RecycleInfo> Classifier::get_categoryvector() const {
+    return _recycle_infovector;
+}

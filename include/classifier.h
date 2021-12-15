@@ -27,6 +27,7 @@ public:
     void load_file_values();
     Classifier::RecycleInfo classify(int index) const;
     std::unordered_map<int, SuperCategory> get_supercategorymap() const;
+    std::vector<RecycleInfo> get_categoryvector() const;
 
 private:
     std::string _filename;

@@ -34,12 +34,14 @@ void OpenCVHandler::set_camera_source(const std::string& source_string) {
 
 void OpenCVHandler::add_database_functionality(std::weak_ptr<DatabaseHandler> db_handler) {
     _db_handler = db_handler;
-    _db_handler.lock()->delete_category_table_data();
 
     std::unordered_map<int, Classifier::SuperCategory> supercategories = _classifier.get_supercategorymap();
-    for(int i = 0; i < supercategories.size(); i++) {
-        Classifier::SuperCategory curr_supercategory = supercategories.at(i);
-        _db_handler.lock()->insert_super_category(curr_supercategory.name, curr_supercategory.recyclable);
+    for(const auto& itr : supercategories) {
+        _db_handler.lock()->insert_super_category(itr.second.name, itr.second.recyclable);
+    }
+    std::vector<Classifier::RecycleInfo> categories = _classifier.get_categoryvector();
+    for(const auto& itr : categories) {
+        _db_handler.lock()->insert_category(itr.superclass_id, itr.item, itr.special_instructions);
     }
 
     _db_enabled = true;
@@ -89,7 +91,7 @@ void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
         cv::Mat detection = net.forward("detection_out");
 
         std::chrono::time_point post_time = std::chrono::high_resolution_clock::now();
-        long inference_time = std::chrono::duration_cast<std::chrono::milliseconds>(post_time - pre_time).count();
+        const int inference_time = (int)std::chrono::duration_cast<std::chrono::milliseconds>(post_time - pre_time).count();
 
         cv::Mat detection_res(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
 
@@ -110,7 +112,7 @@ void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
                 cv::rectangle(frame, cv::Point(x1, y1 - 15), cv::Point(x1 + text_size.width, y1), cv::Scalar(0, 0, 255), -1);
                 cv::putText(frame, info.item, cv::Point(x1, y1), cv::FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(0, 0, 0), 1);
 
-                if(confidence >= top_detection.degrading_confidence) {
+                if(confidence >= top_detection.degrading_confidence && !info.item.empty()) {
                     top_detection.info = info;
                     top_detection.obj_index = index;
                     top_detection.x1 = x1;
@@ -120,8 +122,8 @@ void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
                     top_detection.real_confidence = std::max(confidence, top_detection.real_confidence);
                     top_detection.degrading_confidence = top_detection.real_confidence;
                     top_detection.inference_time = inference_time;
-                    top_detection.frame = frame;
                     top_detection.stats_written = false;
+                    cv::imencode(".jpg", frame, top_detection.frame_data);
                     detection_frame_timeout_counter = detection_frame_timeout_value;
                 }
 
@@ -142,16 +144,17 @@ void OpenCVHandler::start(QLabel& frame_label, QLabel& text_label) {
                 text_label.hide();
                 top_detection.real_confidence = 0;
                 top_detection.degrading_confidence = 0;
+                detection_frame_timeout_counter = detection_frame_timeout_value;
 
                 if(!top_detection.stats_written) {
                     do_stats(top_detection.info.superclass_id);
                     top_detection.stats_written = true;
                 }
-                if(_db_enabled) {
-                    uint img_id = _db_handler.lock()->insert_image(top_detection.frame.data, top_detection.inference_time);
-                    _db_handler.lock()->insert_detection(img_id, top_detection.info.recycle_class.name, top_detection.real_confidence,
-                                                         top_detection.x1, top_detection.y1,
-                                                         top_detection.x2, top_detection.y2);
+                if(_db_enabled && !top_detection.info.item.empty()) {
+                    uint img_id = _db_handler.lock()->insert_image(top_detection.frame_data, top_detection.inference_time);
+                    _db_handler.lock()->insert_detection(img_id, top_detection.info.item, top_detection.real_confidence,
+                                                                             top_detection.x1, top_detection.y1,
+                                                                             top_detection.x2, top_detection.y2);
                 }
             }
             else {
